@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Comparateur de prix</title>
+</head>
+<body>
+<form method="POST" action="/">
+    {{ form.csrf_token }}
+    {{ form.ref.label }} {{ form.ref }}
+    <input type="submit" value="Go">
+</form>
+<div>
+    <table>
+        <thead>
+        <tr>
+            <th>Site</th>
+            <th>Produit</th>
+            <th>Prix</th>
+            <th>Lien</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for product in data %}
+            <tr>
+                <td>{{ product.site }}</td>
+                <td>{{ product.item }}</td>
+                <td>{{ product.price }}</td>
+                <td><a target="_blank" href="{{ product.link }}">{{ product.link }}</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div>
+    <h2>Meilleur Prix : </h2>
+    <p>{{ best_price }}</p>
+</div>
+</body>
+</html>
