@@ -1,5 +1,4 @@
 import requests
-import time
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
@@ -57,7 +56,7 @@ class Comparator:
             chrome_options.add_argument("--no-sandbox")
             chrome_options.add_argument("--disable-dev-shm-usage")
 
-            driver = webdriver.Chrome(options=chrome_options)
+            driver = webdriver.Chrome('driver/chromedriver', options=chrome_options)
             driver.get("https://www.123elec.com/recherche#/embedded/query={0}".format(self.ref))
 
             driver.execute_script("arguments[0].click();", WebDriverWait(driver, 10).until(
