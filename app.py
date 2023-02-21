@@ -3,6 +3,7 @@ from RefForm import RefForm
 from Comparator import Comparator
 
 app = Flask(__name__)
+server = app.server
 app.secret_key = 'secret'
 
 def getData(comparator):
