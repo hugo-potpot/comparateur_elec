@@ -6,49 +6,53 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
+from database import Database
+
 
 class Comparator:
-    def __init__(self, ref):
-        self.ref = ref
-        self.data = []
+    data = Database()
 
-    def add(self, info):
-        self.data.append(info)
+    def __init__(self, ref):
+        self.ref = ref.upper()
+        self.tmp = []
 
     def getData(self):
-        return self.data
+        return self.tmp
 
-    def getBestPrice(self):
-        best_price = self.data[0]["price"]
-        for i in range(1, len(self.data)):
-            if self.data[i]["price"] != "Not Found":
-                if self.data[i]["price"] < best_price or best_price == 0:
-                    best_price = self.data[i]["price"]
-        return best_price
+    def getBestPrice(self,ref):
+        return self.data.best_price(ref)
 
-    def writeCSV(self):
-        with open("result.csv", "w") as f:
-            f.write("Référence,Item,Prix,Lien,Meilleur Prix\n")
-            for i in range(len(self.data)):
-                f.write("{0},{1},{2},{3},{4}\n".format(self.data[i]["ref"], self.data[i]["item"], self.data[i]["price"],
-                                                       self.data[i]["link"], self.getBestPrice()))
+    # def writeCSV(self):
+    #     with open("result.csv", "w") as f:
+    #         f.write("Référence,Item,Prix,Lien,Meilleur Prix\n")
+    #         for i in range(len(self.data)):
+    #             f.write("{0},{1},{2},{3},{4}\n".format(self.data[i]["ref"], self.data[i]["item"], self.data[i]["price"],
+    #                                                    self.data[i]["link"], self.getBestPrice()))
 
     def get_search_senechalelec(self):
-        info_senechalelec = {"site":"Senechalelec","ref": self.ref, "item": "Not Found", "price": "Not Found", "link": "Not Found"}
+        info_tmp = {"site":"Senechalelec","ref": self.ref, "item": "Not Found", "price": "Not Found", "link": "Not Found"}
+        info_senechalelec = (1, self.ref, "Not Found", "Not Found", "Not Found")
         try:
             url = "https://www.senechalelec.com/fr/recherche?controller=search&search_query={0}".format(self.ref)
             response = requests.get(url)
             soup = BeautifulSoup(response.text, "html.parser")
-            info_senechalelec["item"] = soup.find("a", {"class": "product-name"}).text.strip()
-            info_senechalelec["price"] = soup.find("span", {"class": "price product-price"}).text.strip().split()[
+            info_senechalelec = info_senechalelec[:2] + (soup.find("a", {"class": "product-name"}).text.strip(),) + info_senechalelec[3:]
+            info_senechalelec = info_senechalelec[:3] + (soup.find("span", {"class": "price product-price"}).text.strip().split()[0].replace(",", "."),) + info_senechalelec[4:]
+            info_senechalelec = info_senechalelec[:4] + (url,) + info_senechalelec[5:]
+            info_tmp["item"] = soup.find("a", {"class": "product-name"}).text.strip()
+            info_tmp["price"] = soup.find("span", {"class": "price product-price"}).text.strip().split()[
                 0].replace(",", ".")
-            info_senechalelec["link"] = url
+            info_tmp["link"] = url
         except:
             pass
-        self.add(info_senechalelec)
+        finally:
+            self.check_data(1, "Senechalelec", info_senechalelec)
+        self.tmp.append(info_tmp)
 
     def get_search_123elec(self):
-        info_123elec = {"site":"123elec","ref": self.ref, "item": "Not Found", "price": "Not Found", "link": "Not Found"}
+        #id_site = 2
+        info_tmp = {"site":"123Elec","ref": self.ref, "item": "Not Found", "price": "Not Found", "link": "Not Found"}
+        info_123elec = (2, self.ref, "Not Found", "Not Found", "Not Found")
         try:
             chrome_options = Options()
             chrome_options.add_argument("--headless")
@@ -56,7 +60,7 @@ class Comparator:
             chrome_options.add_argument("--no-sandbox")
             chrome_options.add_argument("--disable-dev-shm-usage")
 
-            driver = webdriver.Chrome('driver/chromedriver', options=chrome_options)
+            driver = webdriver.Chrome(options=chrome_options)
             driver.get("https://www.123elec.com/recherche#/embedded/query={0}".format(self.ref))
 
             driver.execute_script("arguments[0].click();", WebDriverWait(driver, 10).until(
@@ -69,20 +73,22 @@ class Comparator:
             li = ul.find_all("li")[1]
             reference = li.find("span").text.strip()
             if reference == self.ref.upper():
-                info_123elec["item"] = soup.find("h1", {"class": "title-1"}).text.strip()
-                info_123elec["price"] = soup.find("strong", {"class": "price"}).text.split()[0].replace(",", ".")
-                info_123elec["link"] = link
-        except:
-            pass
-        self.add(info_123elec)
-
-    def get_search_leroymerlin(self):
-        # Pour l'instant impossible il faut l'api sauf qu'il faut etre une entreprise
-        # https://developer.leroymerlin.fr/dashboard/
-        pass
+                info_123elec = info_123elec[:2] + (soup.find("h1", {"class": "title-1"}).text.strip(),) + info_123elec[3:]
+                info_123elec = info_123elec[:3] + (soup.find("strong", {"class": "price"}).text.split()[0].replace(",", "."),) + info_123elec[4:]
+                info_123elec = info_123elec[:4] + (link,) + info_123elec[5:]
+                info_tmp["item"] = soup.find("h1", {"class": "title-1"}).text.strip()
+                info_tmp["price"] = soup.find("strong", {"class": "price"}).text.split()[0].replace(",", ".")
+                info_tmp["link"] = link
+        except Exception as exception:
+            print(exception)
+        finally:
+            self.check_data(2, "123ELec", info_123elec)
+        self.tmp.append(info_tmp)
 
     def get_search_eplanet(self):
-        info_eplanet = {"site":"E-Planet","ref": self.ref, "item": "Not Found", "price": "Not Found", "link": "Not Found"}
+        #id_site = 3
+        info_tmp = {"site":"E-PlanetElec","ref": self.ref, "item": "Not Found", "price": "Not Found", "link": "Not Found"}
+        info_eplanet = (3, self.ref, "Not Found", "Not Found", "Not Found")
         try:
             url = "https://www.e-planetelec.fr/jolisearch?s={0}".format(self.ref)
             response = requests.get(url)
@@ -93,34 +99,57 @@ class Comparator:
             soup = BeautifulSoup(response.text, "html.parser")
             reference = soup.find("p", {"class": "product_reference"}).text.strip().split()[-1]
             if reference == self.ref.upper():
-                info_eplanet["item"] = soup.find("h1", {"class": "h1"}).text.strip()
-                info_eplanet["price"] = soup.find("span", {"class": "price_ttc"}).text.strip().split()[0].replace(",", ".")
-                info_eplanet["link"] = url
+                info_eplanet = info_eplanet[:2] + (soup.find("h1", {"class": "h1"}).text.strip(),) + info_eplanet[3:]
+                info_eplanet = info_eplanet[:3] + (soup.find("span", {"class": "price_ttc"}).text.strip().split()[0].replace(",", "."),) + info_eplanet[4:]
+                info_eplanet = info_eplanet[:4] + (url,) + info_eplanet[5:]
+                info_tmp["item"] = soup.find("h1", {"class": "h1"}).text.strip()
+                info_tmp["price"] = soup.find("span", {"class": "price_ttc"}).text.strip().split()[0].replace(",", ".")
+                info_tmp["link"] = url
         except:
             pass
-        self.add(info_eplanet)
+        finally:
+            self.check_data(3, "E-Planetelec", info_eplanet)
+        self.tmp.append(info_tmp)
 
     def get_search_elec44(self):
-        info_elec44 = {"site":"Elec44","ref": self.ref, "item": "Not Found", "price": "Not Found", "link": "Not Found"}
+        #id_site = 4
+        info_tmp = {"site":"Elec44","ref": self.ref, "item": "Not Found", "price": "Not Found", "link": "Not Found"}
+        info_elec44 = (4, self.ref, "Not Found", "Not Found", "Not Found")
         try:
             url = "https://elec44.fr/recherche?controller=search&s={0}".format(self.ref)
             response = requests.get(url)
             soup = BeautifulSoup(response.text, "html.parser")
             reference = soup.find("h2", {"class": "h3 product-title"}).text.strip().split()[-1]
             if reference == self.ref.upper():
-                info_elec44["item"] = soup.find("h2", {"class": "h3 product-title"}).text.strip()
-                info_elec44["price"] = soup.find("span", {"class": "price"}).text.strip().split()[0].replace(",", ".")
-                info_elec44["link"] = url
+                info_elec44 = info_elec44[:2] + (soup.find("h2", {"class": "h3 product-title"}).text.strip(),) + info_elec44[3:]
+                info_elec44 = info_elec44[:3] + (soup.find("span", {"class": "price"}).text.strip().split()[0].replace(",", "."),) + info_elec44[4:]
+                info_elec44 = info_elec44[:4] + (url,) + info_elec44[5:]
+                info_tmp["item"] = soup.find("h2", {"class": "h3 product-title"}).text.strip()
+                info_tmp["price"] = soup.find("span", {"class": "price"}).text.strip().split()[0].replace(",", ".")
+                info_tmp["link"] = url
         except:
             pass
-        self.add(info_elec44)
+        finally:
+            self.check_data(4, "Elec44", info_elec44)
+        self.tmp.append(info_tmp)
+
+    def check_data(self, id_site,nom_site, info):
+        exist_item = self.data.search_item(id_site, self.ref)
+        exist_site = self.data.search_site(nom_site)
+        if exist_site == False:
+            self.data.insert_site(nom_site)
+        if exist_item:
+            self.data.update(info)
+        else:
+            self.data.insert_data(info)
 
     def all_comparator(self, comparator):
-        # TOTAL = 2
+        # TOTAL = 4
         comparator.get_search_senechalelec()
         comparator.get_search_123elec()
         comparator.get_search_eplanet()
         comparator.get_search_elec44()
+
 
 #
 # for i in range(total):

@@ -7,7 +7,7 @@ app.secret_key = 'secret'
 
 def getData(comparator):
     comparator.all_comparator(comparator)
-    data = comparator.data
+    data = comparator.tmp
     return data
 
 @app.route('/', methods=['GET', 'POST'])
@@ -16,7 +16,7 @@ def index():
     if form.validate_on_submit():
         ref = form.ref.data
         comparator = Comparator(ref)
-        return render_template('index.html', form=form, data=getData(comparator), best_price=comparator.getBestPrice())
+        return render_template('index.html', form=form, data=getData(comparator), best_price=comparator.getBestPrice(ref))
     return render_template('index.html', form=form)
 
 if __name__ == '__main__':
