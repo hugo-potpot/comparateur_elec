@@ -94,7 +94,7 @@ class Comparator:
             reference = soup.find("p", {"class": "product_reference"}).text.strip().split()[-1]
             if reference == self.ref.upper():
                 info_eplanet["item"] = soup.find("h1", {"class": "h1"}).text.strip()
-                info_eplanet["price"] = soup.find("span", {"class": "price_ttc"}).text.strip().split()[0]
+                info_eplanet["price"] = soup.find("span", {"class": "price_ttc"}).text.strip().split()[0].replace(",", ".")
                 info_eplanet["link"] = url
         except:
             pass
@@ -109,7 +109,7 @@ class Comparator:
             reference = soup.find("h2", {"class": "h3 product-title"}).text.strip().split()[-1]
             if reference == self.ref.upper():
                 info_elec44["item"] = soup.find("h2", {"class": "h3 product-title"}).text.strip()
-                info_elec44["price"] = soup.find("span", {"class": "price"}).text.strip().split()[0]
+                info_elec44["price"] = soup.find("span", {"class": "price"}).text.strip().split()[0].replace(",", ".")
                 info_elec44["link"] = url
         except:
             pass
