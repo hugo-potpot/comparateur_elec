@@ -5,6 +5,7 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <title>Comparateur de prix</title>
 </head>
 <body>
@@ -37,7 +38,33 @@
 </div>
 <div>
     <h2>Meilleur Prix : </h2>
-    <p>{{ best_price }} €</p>
+    <p>{{ best_price }}</p>
+</div>
+<div>
+    <h2>Recherche Produit :</h2>
+    <form method="POST" action="/">
+        {{ form_search.csrf_token }}
+        {{ form_search.info.label }} {{ form_search.info }}
+        <input type="submit" value="Go">
+    </form>
+</div>
+<div>
+    <table>
+      <tr>
+        <th>Site</th>
+        <th>Produit</th>
+        <th>Prix</th>
+        <th>Lien</th>
+      </tr>
+      {% for row in search_produit %}
+        <tr>
+          <td>{{ row[0] }}</td>
+          <td>{{ row[1] }}</td>
+          <td>{{ row[2] }}</td>
+          <td><a href="{{ row[3] }}">Lien</a></td>
+        </tr>
+      {% endfor %}
+    </table>
 </div>
 </body>
 </html>

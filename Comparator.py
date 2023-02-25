@@ -22,13 +22,6 @@ class Comparator:
     def getBestPrice(self,ref):
         return self.data.best_price(ref)
 
-    # def writeCSV(self):
-    #     with open("result.csv", "w") as f:
-    #         f.write("Référence,Item,Prix,Lien,Meilleur Prix\n")
-    #         for i in range(len(self.data)):
-    #             f.write("{0},{1},{2},{3},{4}\n".format(self.data[i]["ref"], self.data[i]["item"], self.data[i]["price"],
-    #                                                    self.data[i]["link"], self.getBestPrice()))
-
     def get_search_senechalelec(self):
         info_tmp = {"site":"Senechalelec","ref": self.ref, "item": "Not Found", "price": "Not Found", "link": "Not Found"}
         info_senechalelec = (1, self.ref, "Not Found", "Not Found", "Not Found")
@@ -150,6 +143,12 @@ class Comparator:
         comparator.get_search_eplanet()
         comparator.get_search_elec44()
 
+    def get_info_page(self):
+        url = "https://www.123elec.com/recherche#/embedded/query=s530214"
+        response = requests.get(url)
+        soup = BeautifulSoup(response.text, "html.parser")
+        with open("test.html", "w") as file:
+            file.write(str(soup))
 
 #
 # for i in range(total):
@@ -157,3 +156,5 @@ class Comparator:
 #     progress_bar(i + 1, total, prefix='Progression:', suffix='Terminé', length=50)
 # METTRE LA REFERENCE FABRIQUANT
 # main("S530214")
+comparator = Comparator("S530214")
+comparator.get_info_page()

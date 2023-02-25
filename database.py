@@ -53,13 +53,21 @@ class Database:
         self.conn.commit()
 
     def best_price(self,ref):
-        self.cur.execute("SELECT MIN(prix) FROM PRODUIT WHERE reference=?", (ref,))
+        self.cur.execute("SELECT reference, nom_produit, prix, url FROM PRODUIT WHERE reference=? ORDER BY prix desc", (ref,))
         rows = self.cur.fetchall()
-        return rows[0][0]
+        return rows[0]
 
     def get_info_produit(self, reference):
         self.cur.execute("SELECT SITE.nom_site, PRODUIT.nom_produit, PRODUIT.prix, PRODUIT.url FROM PRODUIT JOIN SITE ON PRODUIT.id_site = SITE.id WHERE reference=? ", (reference,))
         rows = self.cur.fetchall()
+        return rows
+
+    def get_info_by_search(self, search):
+        self.cur.execute("SELECT SITE.nom_site, PRODUIT.nom_produit, PRODUIT.prix, PRODUIT.url FROM PRODUIT JOIN SITE ON PRODUIT.id_site = SITE.id WHERE nom_produit LIKE '%{0}%' OR reference LIKE '%{1}' ORDER BY SITE.nom_site, PRODUIT.nom_produit;".format(search, search))
+        rows = self.cur.fetchall()
+        if len(rows) == 0:
+            return "Aucun résultat"
+        print(len(list(rows)))
         return rows
 
     def __del__(self):
