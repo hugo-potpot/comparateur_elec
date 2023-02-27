@@ -15,7 +15,6 @@ class Database:
                          "prix DECIMAL(10.2),"
                          "url text)")
         self.conn.commit()
-        print("Database created successfully")
 
     def insert_data(self, info_produit):
         self.cur.execute("INSERT INTO PRODUIT(id_site, reference, nom_produit, prix, url) VALUES (?,?,?,?,?)", (info_produit))
@@ -53,7 +52,7 @@ class Database:
         self.conn.commit()
 
     def best_price(self,ref):
-        self.cur.execute("SELECT reference, nom_produit, prix, url FROM PRODUIT WHERE reference=? ORDER BY prix desc", (ref,))
+        self.cur.execute("SELECT SITE.nom_site, PRODUIT.nom_produit, PRODUIT.reference, PRODUIT.prix, PRODUIT.url FROM PRODUIT JOIN SITE ON PRODUIT.id_site = SITE.id WHERE reference=? ORDER BY prix desc", (ref,))
         rows = self.cur.fetchall()
         return rows[0]
 
@@ -63,7 +62,18 @@ class Database:
         return rows
 
     def get_info_by_search(self, search):
-        self.cur.execute("SELECT SITE.nom_site, PRODUIT.nom_produit, PRODUIT.prix, PRODUIT.url FROM PRODUIT JOIN SITE ON PRODUIT.id_site = SITE.id WHERE nom_produit LIKE '%{0}%' OR reference LIKE '%{1}' ORDER BY SITE.nom_site, PRODUIT.nom_produit;".format(search, search))
+        search_terms = search.split()
+        search_conditions = []
+        for term in search_terms:
+            search_conditions.append("(nom_produit LIKE '%{}%' OR reference LIKE '%{}%')".format(term, term))
+        search_query = " AND ".join(search_conditions)
+        sql_query = """
+            SELECT SITE.nom_site, PRODUIT.nom_produit, PRODUIT.reference, PRODUIT.prix, PRODUIT.url
+            FROM PRODUIT JOIN SITE ON PRODUIT.id_site = SITE.id
+            WHERE {}
+            ORDER BY SITE.nom_site, PRODUIT.nom_produit;
+        """.format(search_query, search[0])
+        self.cur.execute(sql_query)
         rows = self.cur.fetchall()
         if len(rows) == 0:
             return "Aucun résultat"

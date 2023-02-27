@@ -9,62 +9,82 @@
     <title>Comparateur de prix</title>
 </head>
 <body>
-<form method="POST" action="/">
-    {{ form.csrf_token }}
-    {{ form.ref.label }} {{ form.ref }}
-    <input type="submit" value="Go">
-</form>
-<div>
-    <table>
-        <thead>
-        <tr>
-            <th>Site</th>
-            <th>Produit</th>
-            <th>Prix</th>
-            <th>Lien</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for product in data %}
-            <tr>
-                <td>{{ product.site }}</td>
-                <td>{{ product.item }}</td>
-                <td>{{ product.price }}</td>
-                <td><a target="_blank" href="{{ product.link }}">{{ product.link }}</a></td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-</div>
-<div>
-    <h2>Meilleur Prix : </h2>
-    <p>{{ best_price }}</p>
-</div>
-<div>
-    <h2>Recherche Produit :</h2>
     <form method="POST" action="/">
-        {{ form_search.csrf_token }}
-        {{ form_search.info.label }} {{ form_search.info }}
+        {{ form.csrf_token }}
+        {{ form.ref.label }} {{ form.ref }}
+        {{ form.check.label }} {{ form.check }}
         <input type="submit" value="Go">
     </form>
-</div>
-<div>
-    <table>
-      <tr>
-        <th>Site</th>
-        <th>Produit</th>
-        <th>Prix</th>
-        <th>Lien</th>
-      </tr>
-      {% for row in search_produit %}
-        <tr>
-          <td>{{ row[0] }}</td>
-          <td>{{ row[1] }}</td>
-          <td>{{ row[2] }}</td>
-          <td><a href="{{ row[3] }}">Lien</a></td>
-        </tr>
-      {% endfor %}
-    </table>
-</div>
+    <div>
+        <table>
+            <thead>
+            <tr>
+                <th>Site</th>
+                <th>Produit</th>
+                <th>Référence</th>
+                <th>Prix</th>
+                <th>Lien</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for product in data %}
+                <tr>
+                    <td>{{ product.site }}</td>
+                    <td>{{ product.item }}</td>
+                    <td>{{ product.ref }}</td>
+                    <td>{{ product.price }}</td>
+                    <td><a target="_blank" href="{{ product.link }}">{{ product.link }}</a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div>
+        <h2>Meilleur Prix : </h2>
+            <table>
+          <tr>
+            <th>Site</th>
+            <th>Produit</th>
+            <th>Référence</th>
+            <th>Prix</th>
+            <th>Lien</th>
+          </tr>
+            <tr>
+              <td>{{ best_price[0] }}</td>
+              <td>{{ best_price[1] }}</td>
+                <td>{{ best_price[2] }}</td>
+              <td>{{ best_price[3] }}</td>
+              <td><a target="_blank" href="{{ best_price[4] }}">Lien</a></td>
+            </tr>
+        </table>
+    </div>
+    <div>
+        <h2>Recherche Produit :</h2>
+        <form method="POST" action="/">
+            {{ form_search.csrf_token }}
+            {{ form_search.info.label }} {{ form_search.info }}
+            <input type="submit" value="Go">
+        </form>
+    </div>
+    <div>
+        <table>
+          <tr>
+            <th>Site</th>
+            <th>Produit</th>
+            <th>Référence</th>
+            <th>Prix</th>
+            <th>Lien</th>
+          </tr>
+          {% for row in search_produit %}
+            <tr>
+              <td>{{ row[0] }}</td>
+              <td>{{ row[1] }}</td>
+                <td>{{ row[2] }}</td>
+              <td>{{ row[3] }}</td>
+              <td><a target="_blank" href="{{ row[4] }}">Lien</a></td>
+            </tr>
+          {% endfor %}
+        </table>
+    </div>
 </body>
 </html>

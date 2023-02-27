@@ -1,3 +1,5 @@
+import time
+
 import requests
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -39,7 +41,8 @@ class Comparator:
         except:
             pass
         finally:
-            self.check_data(1, "Senechalelec", info_senechalelec)
+            if info_tmp['item'] != "Not Found":
+                self.check_data(1, "Senechalelec", info_senechalelec)
         self.tmp.append(info_tmp)
 
     def get_search_123elec(self):
@@ -75,7 +78,8 @@ class Comparator:
         except Exception as exception:
             print(exception)
         finally:
-            self.check_data(2, "123ELec", info_123elec)
+            if info_tmp['item'] != "Not Found":
+                self.check_data(2, "123ELec", info_123elec)
         self.tmp.append(info_tmp)
 
     def get_search_eplanet(self):
@@ -101,7 +105,8 @@ class Comparator:
         except:
             pass
         finally:
-            self.check_data(3, "E-Planetelec", info_eplanet)
+            if info_tmp['item'] != "Not Found":
+                self.check_data(3, "E-Planetelec", info_eplanet)
         self.tmp.append(info_tmp)
 
     def get_search_elec44(self):
@@ -123,7 +128,8 @@ class Comparator:
         except:
             pass
         finally:
-            self.check_data(4, "Elec44", info_elec44)
+            if info_tmp['item'] != "Not Found":
+                self.check_data(4, "Elec44", info_elec44)
         self.tmp.append(info_tmp)
 
     def check_data(self, id_site,nom_site, info):
@@ -136,12 +142,17 @@ class Comparator:
         else:
             self.data.insert_data(info)
 
-    def all_comparator(self, comparator):
+    def all_comparator(self, comparator, eleccheck):
         # TOTAL = 4
-        comparator.get_search_senechalelec()
-        comparator.get_search_123elec()
-        comparator.get_search_eplanet()
-        comparator.get_search_elec44()
+        if not eleccheck:
+            comparator.get_search_senechalelec()
+            comparator.get_search_eplanet()
+            comparator.get_search_elec44()
+        else:
+            comparator.get_search_senechalelec()
+            comparator.get_search_123elec()
+            comparator.get_search_eplanet()
+            comparator.get_search_elec44()
 
     def get_info_page(self):
         url = "https://www.123elec.com/recherche#/embedded/query=s530214"
@@ -155,6 +166,4 @@ class Comparator:
 #     time.sleep(0.1)  # Simulation d'une opération qui prend du temps
 #     progress_bar(i + 1, total, prefix='Progression:', suffix='Terminé', length=50)
 # METTRE LA REFERENCE FABRIQUANT
-# main("S530214")
-comparator = Comparator("S530214")
-comparator.get_info_page()
+# main("S530214"

@@ -4844,8 +4844,8 @@ def verify_page(soup):
         return None
 
 
-# cxn = sqlite3.connect('produits.db')
-# wb = pd.read_excel('PRODUIT.xlsx',sheet_name = 'produits')
-# wb.to_sql(name='PRODUIT',con=cxn,if_exists='replace',index=True)
-# cxn.commit()
-# cxn.close()
+cxn = sqlite3.connect('produits.db')
+wb = pd.read_excel('PRODUIT.xlsx',sheet_name = 'produits')
+wb.to_sql(name='PRODUIT',con=cxn,if_exists='replace',index=True)
+cxn.commit()
+cxn.close()
