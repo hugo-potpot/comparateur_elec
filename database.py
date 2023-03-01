@@ -12,7 +12,7 @@ class Database:
                          "id_site REFERENCES SITE(id),"
                          "reference text, "
                          "nom_produit text, "
-                         "prix DECIMAL(10.2),"
+                         "prix DECIMAL(10,2),"
                          "url text)")
         self.conn.commit()
 
@@ -52,9 +52,11 @@ class Database:
         self.conn.commit()
 
     def best_price(self,ref):
-        self.cur.execute("SELECT SITE.nom_site, PRODUIT.nom_produit, PRODUIT.reference, PRODUIT.prix, PRODUIT.url FROM PRODUIT JOIN SITE ON PRODUIT.id_site = SITE.id WHERE reference=? ORDER BY prix desc", (ref,))
+        self.cur.execute("SELECT SITE.nom_site, PRODUIT.nom_produit, PRODUIT.reference, MIN(PRODUIT.prix), PRODUIT.url FROM PRODUIT JOIN SITE ON PRODUIT.id_site = SITE.id WHERE reference=?", (ref,))
         rows = self.cur.fetchall()
-        return rows[0]
+        if rows is not None:
+            return rows[0]
+        return None
 
     def get_info_produit(self, reference):
         self.cur.execute("SELECT SITE.nom_site, PRODUIT.nom_produit, PRODUIT.prix, PRODUIT.url FROM PRODUIT JOIN SITE ON PRODUIT.id_site = SITE.id WHERE reference=? ", (reference,))

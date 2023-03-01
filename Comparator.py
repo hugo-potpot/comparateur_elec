@@ -132,6 +132,30 @@ class Comparator:
                 self.check_data(4, "Elec44", info_elec44)
         self.tmp.append(info_tmp)
 
+    def get_search_comptoirdespros(self):
+        info_tmp = {"site":"ComptoirDesPros","ref": self.ref, "item": "Not Found", "price": "Not Found", "link": "Not Found"}
+        info_cdp = (5, self.ref, "Not Found", "Not Found", "Not Found")
+        try:
+            url = "https://www.comptoirdespros.com/catalogsearch/result/?q={0}".format(self.ref)
+            response = requests.get(url)
+            soup = BeautifulSoup(response.text, "html.parser")
+            reference = soup.find("div", {"class": "product attribute sku"}).find("span", {"itemprop": "sku"}).text.strip()
+            if reference == self.ref:
+                item = soup.find("span", {"class": "base"}).text.strip()
+                price = soup.find("span", {"class": "product-price-HT"}).text.strip().split()[0].replace(",", ".")
+                info_cdp = info_cdp[:2] + (item,) + info_cdp[3:]
+                info_cdp = info_cdp[:3] + (price,) + info_cdp[4:]
+                info_cdp = info_cdp[:4] + (url,) + info_cdp[5:]
+                info_tmp["item"] = item
+                info_tmp["price"] = price
+                info_tmp["link"] = url
+        except:
+            pass
+        finally:
+            if info_tmp['item'] != "Not Found":
+                self.check_data(5, "ComptoirDesPros", info_cdp)
+        self.tmp.append(info_tmp)
+
     def check_data(self, id_site,nom_site, info):
         exist_item = self.data.search_item(id_site, self.ref)
         exist_site = self.data.search_site(nom_site)
@@ -148,14 +172,17 @@ class Comparator:
             comparator.get_search_senechalelec()
             comparator.get_search_eplanet()
             comparator.get_search_elec44()
+            comparator.get_search_comptoirdespros()
         else:
             comparator.get_search_senechalelec()
             comparator.get_search_123elec()
             comparator.get_search_eplanet()
             comparator.get_search_elec44()
+            comparator.get_search_comptoirdespros()
+
 
     def get_info_page(self):
-        url = "https://www.123elec.com/recherche#/embedded/query=s530214"
+        url = "https://www.comptoirdespros.com/commande-d-eclairage-odace-s530214.html"
         response = requests.get(url)
         soup = BeautifulSoup(response.text, "html.parser")
         with open("test.html", "w") as file:
